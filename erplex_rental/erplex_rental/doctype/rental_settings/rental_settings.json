@@ -1,0 +1,118 @@
+{
+ "actions": [],
+ "creation": "2024-01-01 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "warehouse_settings",
+  "column_break_4",
+  "auto_create_warehouses",
+  "defaults",
+  "rental_settings",
+  "default_rental_period_type",
+  "default_rental_period",
+  "column_break_18",
+  "allow_partial_returns",
+  "require_security_deposit",
+  "default_security_deposit_item"
+ ],
+ "fields": [
+  {
+   "fieldname": "warehouse_settings",
+   "fieldtype": "Section Break",
+   "label": "Warehouse Settings"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Automatically create rental warehouses if they don't exist",
+   "fieldname": "auto_create_warehouses",
+   "fieldtype": "Check",
+   "label": "Auto Create Warehouses"
+  },
+  {
+   "fieldname": "rental_settings",
+   "fieldtype": "Section Break",
+   "label": "Rental Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "default_rental_period",
+   "fieldtype": "Int",
+   "label": "Default Rental Period"
+  },
+  {
+   "default": "Monthly",
+   "fieldname": "default_rental_period_type",
+   "fieldtype": "Select",
+   "label": "Default Rental Period Type",
+   "options": "Monthly"
+  },
+  {
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_partial_returns",
+   "fieldtype": "Check",
+   "label": "Allow Partial Returns"
+  },
+  {
+   "default": "0",
+   "fieldname": "require_security_deposit",
+   "fieldtype": "Check",
+   "label": "Require Security Deposit"
+  },
+  {
+   "fieldname": "default_security_deposit_item",
+   "fieldtype": "Link",
+   "label": "Default Security Deposit Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "defaults",
+   "fieldtype": "Table",
+   "label": "Defaults",
+   "options": "Rental Settings Defaults"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-07-12 06:48:09.824861",
+ "modified_by": "Administrator",
+ "module": "ERPlex Rental",
+ "name": "Rental Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Rental Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

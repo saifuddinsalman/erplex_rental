@@ -1,0 +1,270 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2024-01-01 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "posting_date",
+  "column_break_4",
+  "warehouse",
+  "posting_time",
+  "source_item_section",
+  "source_item",
+  "source_item_name",
+  "column_break_tvnt",
+  "source_qty",
+  "section_break_dlfv",
+  "source_rate",
+  "source_rate_copy",
+  "naming_series",
+  "source_amount",
+  "source_batch_no",
+  "difference_amount",
+  "column_break_buxm",
+  "source_serial_no",
+  "total_target_amount",
+  "section_break_16",
+  "target_items",
+  "section_break_18",
+  "total_target_qty",
+  "column_break_21",
+  "section_break_24",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Naming Series",
+   "options": "CI-.YYYY.-",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "default": "Now",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Posting Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_item_section",
+   "fieldtype": "Section Break",
+   "label": "Source Item"
+  },
+  {
+   "fieldname": "source_item",
+   "fieldtype": "Link",
+   "label": "Source Item",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_item_name",
+   "fieldtype": "Data",
+   "label": "Source Item Name",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "source_qty",
+   "fieldtype": "Float",
+   "label": "Source Qty",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "source_rate",
+   "fieldtype": "Currency",
+   "label": "Source Rate"
+  },
+  {
+   "fieldname": "source_amount",
+   "fieldtype": "Currency",
+   "label": "Source Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "source_serial_no",
+   "fieldtype": "Text",
+   "label": "Source Serial No"
+  },
+  {
+   "fieldname": "source_batch_no",
+   "fieldtype": "Link",
+   "label": "Source Batch No",
+   "options": "Batch"
+  },
+  {
+   "fieldname": "section_break_16",
+   "fieldtype": "Section Break",
+   "label": "Target Items"
+  },
+  {
+   "fieldname": "target_items",
+   "fieldtype": "Table",
+   "label": "Target Items",
+   "options": "Change Inventory Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_18",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "total_target_qty",
+   "fieldtype": "Float",
+   "label": "Total Target Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_target_amount",
+   "fieldtype": "Currency",
+   "label": "Total Target Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Difference between source and target amounts",
+   "fieldname": "difference_amount",
+   "fieldtype": "Currency",
+   "label": "Difference Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_24",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Change Inventory",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tvnt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_dlfv",
+   "fieldtype": "Section Break",
+   "hidden": 1
+  },
+  {
+   "fieldname": "column_break_buxm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "source_rate_copy",
+   "fieldtype": "Currency",
+   "label": "Source Rate Copy"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [
+  {
+   "link_doctype": "Stock Entry",
+   "link_fieldname": "change_inventory"
+  }
+ ],
+ "modified": "2025-07-12 06:48:08.993000",
+ "modified_by": "Administrator",
+ "module": "ERPlex Rental",
+ "name": "Change Inventory",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "source_item",
+ "track_changes": 1
+}

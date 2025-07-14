@@ -5,22 +5,6 @@ app_description = "ERPlex Rental"
 app_email = "info@erplexsolutions.com"
 app_license = "mit"
 
-# Apps
-# ------------------
-
-# required_apps = []
-
-# Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "erplex_rental",
-# 		"logo": "/assets/erplex_rental/logo.png",
-# 		"title": "ERPlex Rental",
-# 		"route": "/erplex_rental",
-# 		"has_permission": "erplex_rental.api.permission.has_app_permission"
-# 	}
-# ]
-
 # Includes in <head>
 # ------------------
 
@@ -43,15 +27,14 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+    "Item": "public/js/item.js",
+    "Sales Order": "public/js/sales_order.js",
+    "Sales Invoice": "public/js/sales_invoice.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
-
-# Svg Icons
-# ------------------
-# include app icons in desk
-# app_include_icons = "erplex_rental/public/icons.svg"
 
 # Home Pages
 # ----------
@@ -61,7 +44,7 @@ app_license = "mit"
 
 # website user home page (by Role)
 # role_home_page = {
-# 	"Role": "home_page"
+#	"Role": "home_page"
 # }
 
 # Generators
@@ -86,26 +69,10 @@ app_license = "mit"
 # after_install = "erplex_rental.install.after_install"
 
 # Uninstallation
-# ------------
+# ---------------
 
 # before_uninstall = "erplex_rental.uninstall.before_uninstall"
 # after_uninstall = "erplex_rental.uninstall.after_uninstall"
-
-# Integration Setup
-# ------------------
-# To set up dependencies/integrations with other apps
-# Name of the app being installed is passed as an argument
-
-# before_app_install = "erplex_rental.utils.before_app_install"
-# after_app_install = "erplex_rental.utils.after_app_install"
-
-# Integration Cleanup
-# -------------------
-# To clean up dependencies/integrations with other apps
-# Name of the app being uninstalled is passed as an argument
-
-# before_app_uninstall = "erplex_rental.utils.before_app_uninstall"
-# after_app_uninstall = "erplex_rental.utils.after_app_uninstall"
 
 # Desk Notifications
 # ------------------
@@ -137,34 +104,24 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "Sales Order": {
+        "validate": "erplex_rental.erplex_rental.doctype.rental_delivery.rental_delivery.validate_sales_order_rental",
+        "on_submit": "erplex_rental.erplex_rental.doctype.rental_delivery.rental_delivery.create_rental_delivery_from_sales_order"
+    },
+    "Item": {
+        "validate": "erplex_rental.utils.validate_item_rental_fields"
+    }
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"erplex_rental.tasks.all"
-# 	],
-# 	"daily": [
-# 		"erplex_rental.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"erplex_rental.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"erplex_rental.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"erplex_rental.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+    "daily": [
+        "erplex_rental.utils.check_rental_returns"
+    ]
+}
 
 # Testing
 # -------
@@ -217,14 +174,14 @@ app_license = "mit"
 # 	{
 # 		"doctype": "{doctype_2}",
 # 		"filter_by": "{filter_by}",
+# 		"redact_fields": ["{field_1}", "{field_2}"],
 # 		"partial": 1,
 # 	},
 # 	{
 # 		"doctype": "{doctype_3}",
-# 		"strict": False,
-# 	},
-# 	{
-# 		"doctype": "{doctype_4}"
+# 		"filter_by": "{filter_by}",
+# 		"redact_fields": ["{field_1}", "{field_2}"],
+# 		"partial": 1,
 # 	}
 # ]
 
@@ -235,10 +192,18 @@ app_license = "mit"
 # 	"erplex_rental.auth.validate"
 # ]
 
-# Automatically update python controller files with type annotations for this app.
-# export_python_type_annotations = True
+fixtures = [
+    {
+        "doctype": "Custom Field",
+        "filters": [
+            [
+                "module",
+                "=",
+                "ERPlex Rental"
+            ]
+        ]
+    }
+]
 
-# default_log_clearing_doctypes = {
-# 	"Logging DocType Name": 30  # days to retain logs
-# }
-
+# after_install = "erplex_rental.install.after_install"
+# before_uninstall = "erplex_rental.install.before_uninstall"
