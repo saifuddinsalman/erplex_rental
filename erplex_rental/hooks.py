@@ -28,9 +28,9 @@ app_license = "mit"
 
 # include js in doctype views
 doctype_js = {
-    "Item": "public/js/item.js",
+    # "Item": "public/js/item.js",
     "Sales Order": "public/js/sales_order.js",
-    "Sales Invoice": "public/js/sales_invoice.js"
+    # "Sales Invoice": "public/js/sales_invoice.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -44,7 +44,7 @@ doctype_js = {
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# "Role": "home_page"
 # }
 
 # Generators
@@ -107,21 +107,15 @@ doctype_js = {
 doc_events = {
     "Sales Order": {
         "validate": "erplex_rental.erplex_rental.doctype.rental_delivery.rental_delivery.validate_sales_order_rental",
-        "on_submit": "erplex_rental.erplex_rental.doctype.rental_delivery.rental_delivery.create_rental_delivery_from_sales_order"
+        "on_submit": "erplex_rental.erplex_rental.doctype.rental_delivery.rental_delivery.create_rental_delivery_from_sales_order",
     },
-    "Item": {
-        "validate": "erplex_rental.utils.validate_item_rental_fields"
-    }
+    # "Item": {"validate": "erplex_rental.utils.validate_item_rental_fields"},
 }
 
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {
-    "daily": [
-        "erplex_rental.utils.check_rental_returns"
-    ]
-}
+scheduler_events = {"daily": ["erplex_rental.utils.check_rental_returns"]}
 
 # Testing
 # -------
@@ -192,18 +186,7 @@ scheduler_events = {
 # 	"erplex_rental.auth.validate"
 # ]
 
-fixtures = [
-    {
-        "doctype": "Custom Field",
-        "filters": [
-            [
-                "module",
-                "=",
-                "ERPlex Rental"
-            ]
-        ]
-    }
-]
+fixtures = [{"doctype": "Custom Field", "filters": {"module": "ERPlex Rental"}}]
 
 # after_install = "erplex_rental.install.after_install"
 # before_uninstall = "erplex_rental.install.before_uninstall"
