@@ -186,7 +186,10 @@ scheduler_events = {"daily": ["erplex_rental.utils.check_rental_returns"]}
 # 	"erplex_rental.auth.validate"
 # ]
 
-fixtures = [{"doctype": "Custom Field", "filters": {"module": "ERPlex Rental"}}]
+fixtures = [
+    {"doctype": "Custom Field", "filters": {"module": "ERPlex Rental"}},
+    {"doctype": "Property Setter", "filters": {"module": "ERPlex Rental"}},
+]
 
 # after_install = "erplex_rental.install.after_install"
 # before_uninstall = "erplex_rental.install.before_uninstall"
