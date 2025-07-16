@@ -8,7 +8,8 @@ frappe.query_reports["MRF Report"] = {
 			"label": __("Company"),
 			"fieldtype": "Link",
 			"options": "Company",
-			"reqd": 1
+			"reqd": 1,
+			"default": frappe.defaults.get_user_default("Company")
 		},
 		{
 			"fieldname": "sales_order",
