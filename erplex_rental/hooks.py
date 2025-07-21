@@ -115,7 +115,7 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {"daily": ["erplex_rental.utils.check_rental_returns"]}
+scheduler_events = {"monthly": ["erplex_rental.utils.create_monthly_rental_invoice"]}
 
 # Testing
 # -------
