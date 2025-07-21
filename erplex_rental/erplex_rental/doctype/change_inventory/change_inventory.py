@@ -41,7 +41,8 @@ class ChangeInventory(Document):
         for item in self.target_items:
             if not item.item_code:
                 frappe.throw("Item Code is required for all target items")
-
+            if item.item_code == self.source_item:
+                frappe.throw("Target Item Code cannot be the same as Source Item")
             if not item.qty or item.qty <= 0:
                 frappe.throw("Qty must be greater than 0 for all target items")
 
@@ -58,7 +59,7 @@ class ChangeInventory(Document):
 
     def calculate_totals(self):
         """Calculate totals"""
-        # self.total_target_qty = sum(flt(item.qty) for item in self.target_items)
+        self.total_target_qty = sum(flt(item.qty) for item in self.target_items)
         # self.total_target_amount = sum(flt(item.amount) for item in self.target_items)
         # self.difference_amount = flt(self.total_target_amount - self.source_amount, 2)
 
@@ -146,7 +147,7 @@ class ChangeInventory(Document):
         stock_entry.flags.ignore_permissions = True
         stock_entry.save()
         stock_entry.submit()
-        frappe.msgprint(f"Stock Entry {stock_entry.name} created successfully")
+        # frappe.msgprint(f"Stock Entry {stock_entry.name} created successfully")
 
     def on_cancel(self):
         remove_linked_transactions("Stock Entry", "change_inventory", self.name)

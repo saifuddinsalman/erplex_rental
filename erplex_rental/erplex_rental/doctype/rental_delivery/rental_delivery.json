@@ -6,11 +6,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "naming_series",
+  "sales_order",
   "company",
   "customer",
   "status",
   "column_break_5",
+  "naming_series",
   "posting_date",
   "posting_time",
   "delivery_date",
@@ -158,6 +159,15 @@
    "label": "Rental Source Warehouse",
    "options": "Warehouse",
    "reqd": 1
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "no_copy": 1,
+   "options": "Sales Order",
+   "reqd": 1,
+   "set_only_once": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -174,7 +184,7 @@
    "table_fieldname": "items"
   }
  ],
- "modified": "2025-07-12 07:55:34.229806",
+ "modified": "2025-07-21 04:49:54.628402",
  "modified_by": "Administrator",
  "module": "ERPlex Rental",
  "name": "Rental Delivery",

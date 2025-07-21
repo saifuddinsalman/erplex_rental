@@ -1,0 +1,84 @@
+   <table border="1">
+    <tr>
+        <td>Date</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Last Updated</td>
+        <td></td>
+    </tr>
+</table>
+<!-- data is array of objects -->
+<table border="1" style="width: 100%;font-size: 0.65rem;color: black;">
+    <tr>
+        <td>Customer Name: &nbsp;</td>
+        <td>Client P.O#.: &nbsp;</td>
+        <td>Project: &nbsp;</td>
+        <td>Work Order: &nbsp;</td>
+        
+    </tr>
+    <tr>
+        <td>Delivery: &nbsp;</td>
+        <td>Contact Person: &nbsp;</td>
+        <td>Contact #: &nbsp;</td>
+        <td>Quotation No: &nbsp;</td>
+        
+    </tr>
+</table>
+
+<table style="width: 100%;font-size: 0.65rem;" border="1">
+    <tr>
+        <td colspan="4"></td>
+        <td colspan="6">Deliveries</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td rowspan="3">S/No</td>
+        <td rowspan="3">Art #</td>
+        <td rowspan="3">Description</td>
+        <td rowspan="3">Order Quantity</td>
+        <td>Delivery 1</td>
+        <td>Delivery 2</td>
+        <td>Delivery 3</td>
+        <td>Delivery 4</td>
+        <td rowspan="3">Total Delivered Quantity</td>
+        <td rowspan="3">Balance For Delivery</td>
+        <td rowspan="3">Remarks</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="10"></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="10">Al Madina</td>
+        <td>+966 57 125 2697</td>
+    </tr>
+    {% for(var i=0, l=data.length; i<l; i++) { %}
+			<tr>
+			{% if(data[i]) { %}
+				<td class="text-left"></td>
+				<td class="text-left">{%= (data[i].art) %}</td>
+				<td class="text-left">{%= (data[i].description) %}</td>
+				<td class="text-left">{%= (data[i].order_qty) %}</td>
+				<td class="text-left"></td>
+				<td class="text-left"></td>
+				<td class="text-left"></td>
+                <td class="text-left"></td>
+                <td class="text-left">{%= (data[i].total_delivered_qty) %}</td>
+                <td class="text-left">{%= (data[i].balance_delivery) %}</td>
+                <td class="text-left"></td>
+			{% } %}
+
+			</tr>
+		{% } %}
+</table>

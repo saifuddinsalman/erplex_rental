@@ -137,7 +137,7 @@ def get_total_returned_qty(so, soi, rd=None, rdi=None):
     if rdi:
         conds += f"and rri.rental_delivery_detail = '{rdi}' "
     return (
-        frappe.db.sql(f"""Select (SUM(rri.return_qty)+SUM(rri.damaged_qty)) as total_returned_qty 
+        frappe.db.sql(f"""Select (SUM(rri.return_qty)+SUM(rri.maintenance_qty)+SUM(rri.damaged_qty)) as total_returned_qty 
     from `tabRental Return` rr inner join `tabRental Return Item` rri on rr.name = rri.parent  
     where rr.docstatus = 1 and rri.sales_order = '{so}' and rri.sales_order_detail = '{soi}' {conds} """)[
             0

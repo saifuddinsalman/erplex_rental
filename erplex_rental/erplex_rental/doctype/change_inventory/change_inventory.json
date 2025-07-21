@@ -76,7 +76,7 @@
   {
    "fieldname": "warehouse",
    "fieldtype": "Link",
-   "label": "Warehouse",
+   "label": "Source Warehouse",
    "options": "Warehouse",
    "reqd": 1
   },
@@ -210,11 +210,12 @@
  "is_submittable": 1,
  "links": [
   {
+   "hidden": 1,
    "link_doctype": "Stock Entry",
    "link_fieldname": "change_inventory"
   }
  ],
- "modified": "2025-07-12 06:48:08.993000",
+ "modified": "2025-07-18 17:18:57.199660",
  "modified_by": "Administrator",
  "module": "ERPlex Rental",
  "name": "Change Inventory",

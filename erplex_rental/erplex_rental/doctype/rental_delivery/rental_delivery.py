@@ -21,6 +21,8 @@ class RentalDelivery(Document):
             frappe.throw("At least one Sales Order is required for this Rental Delivery")
         if len(orders) > 1:
             frappe.throw("Rental Delivery cannot have multiple Sales Orders")
+        if self.sales_order != orders[0]:
+            frappe.throw("Rental Delivery must be for the same Sales Order Selected.")
 
     def validate_items(self):
         if not self.items:
@@ -91,8 +93,14 @@ class RentalDelivery(Document):
             so = frappe.get_doc("Sales Order", order)
             so.status = "To Deliver"
             for soi in so.items:
-                soi.custom_rental_delivered_qty = get_total_delivered_qty(so.name, soi.name)
-                soi.custom_rental_returned_qty = get_total_returned_qty(so.name, soi.name)
+                custom_rental_delivered_qty = get_total_delivered_qty(so.name, soi.name)
+                if custom_rental_delivered_qty > soi.qty:
+                    frappe.throw("Cannot Deliver more than Ordered Qty, Total Remaining Qty to Deliver is {}".format(soi.qty - soi.custom_rental_delivered_qty))
+                soi.custom_rental_delivered_qty = custom_rental_delivered_qty
+                custom_rental_returned_qty = get_total_returned_qty(so.name, soi.name)
+                if custom_rental_returned_qty > soi.qty:
+                    frappe.throw("Cannot Return more than Ordered Qty, Total Remaining Qty to Deliver is {}".format(soi.qty - soi.custom_rental_returned_qty))
+                soi.custom_rental_returned_qty = custom_rental_returned_qty 
                 soi.db_update()
             so.custom_all_rental_delivered = all(soi.custom_rental_delivered_qty == soi.qty for soi in so.items)
             if so.custom_all_rental_delivered:
@@ -113,9 +121,11 @@ def create_rental_delivery(source_name, target_doc=None):
     def update_item(source, target, source_parent):
         target.sales_order = source_parent.name
         target.sales_order_detail = source.name
+        target.qty = source.qty - source.custom_rental_delivered_qty
 
     def update_target(source, target):
         validate(source, target)
+        target.sales_order = source.name 
         target.delivery_date = source.delivery_date
         target.posting_date = today()
         target.posting_time = nowtime()
@@ -129,6 +139,7 @@ def create_rental_delivery(source_name, target_doc=None):
         target.rented_warehouse = warehouses.get("rented_warehouse")
         if not target.rented_warehouse:
             frappe.throw("Please configure Rented Warehouse in Rental Settings")
+        target.run_method('calculate_totals')
 
     doclist = get_mapped_doc(
         "Sales Order",

@@ -7,11 +7,12 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "naming_series",
+  "sales_order",
   "company",
   "customer",
   "status",
   "column_break_5",
+  "naming_series",
   "return_date",
   "posting_date",
   "posting_time",
@@ -19,10 +20,14 @@
   "items",
   "section_break_11",
   "total_return_qty",
-  "total_damaged_qty",
   "total_amount",
   "total_security_deposit_returned",
   "grand_total",
+  "column_break_ybvb",
+  "total_maintenance_qty",
+  "total_maintenance_amount",
+  "total_damaged_qty",
+  "total_damaged_amount",
   "column_break_14",
   "remarks",
   "section_break_17",
@@ -179,12 +184,43 @@
    "fieldtype": "Float",
    "label": "Total Damaged Qty",
    "read_only": 1
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "label": "Sales Order",
+   "no_copy": 1,
+   "options": "Sales Order",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "column_break_ybvb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_maintenance_qty",
+   "fieldtype": "Float",
+   "label": "Total Maintenance Qty",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_maintenance_amount",
+   "fieldtype": "Currency",
+   "label": "Total Maintenance Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_damaged_amount",
+   "fieldtype": "Currency",
+   "label": "Total Damaged Amount",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-14 06:20:12.904000",
+ "modified": "2025-07-21 05:22:15.215279",
  "modified_by": "Administrator",
  "module": "ERPlex Rental",
  "name": "Rental Return",

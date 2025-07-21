@@ -3,18 +3,24 @@
  "allow_rename": 1,
  "creation": "2024-01-01 10:00:00",
  "doctype": "DocType",
- "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "item_code",
   "item_name",
   "return_qty",
-  "damaged_qty",
   "rate",
   "amount",
   "column_break_5",
   "description",
   "delivered_qty",
+  "section_break_wsmz",
+  "maintenance_qty",
+  "maintenance_rate",
+  "maintenance_amount",
+  "column_break_fvpm",
+  "damaged_qty",
+  "damaged_rate",
+  "damaged_amount",
   "section_break_16",
   "sales_order",
   "rental_delivery",
@@ -66,7 +72,8 @@
    "fieldname": "rate",
    "fieldtype": "Currency",
    "label": "Rate",
-   "read_only": 1
+   "read_only": 1,
+   "reqd": 1
   },
   {
    "fieldname": "amount",
@@ -121,12 +128,53 @@
    "in_list_view": 1,
    "label": "Damaged Qty",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break_wsmz",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "maintenance_qty",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Maintenance Qty",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "maintenance_rate",
+   "fieldtype": "Currency",
+   "label": "Maintenance Rate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "maintenance_amount",
+   "fieldtype": "Currency",
+   "label": "Maintenance Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fvpm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "damaged_rate",
+   "fieldtype": "Currency",
+   "label": "Damaged Rate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "damaged_amount",
+   "fieldtype": "Currency",
+   "label": "Damaged Amount",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-07-14 06:16:04.161670",
+ "modified": "2025-07-21 05:15:57.577534",
  "modified_by": "Administrator",
  "module": "ERPlex Rental",
  "name": "Rental Return Item",

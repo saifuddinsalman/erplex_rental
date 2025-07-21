@@ -25,17 +25,27 @@ class RentalReturn(Document):
         for item in self.items:
             if not item.item_code:
                 frappe.throw("Item Code is required for all items")
-            if item.return_qty <= 0 and item.damaged_qty <= 0:
-                frappe.throw("Return or Damaged Quantity must be greater than 0")
-            if (flt(item.return_qty) + flt(item.damaged_qty)) > flt(item.delivered_qty):
+            if (
+                item.return_qty <= 0
+                and item.maintenance_qty <= 0
+                and item.damaged_qty <= 0
+            ):
                 frappe.throw(
-                    "Return + Damaged Quantity must be less than or equal to Delivered Quantity"
+                    "Return, Maintenance or Damaged Quantity must be greater than 0"
+                )
+            if (
+                flt(item.return_qty) + flt(item.maintenance_qty) + flt(item.damaged_qty)
+            ) > flt(item.delivered_qty):
+                frappe.throw(
+                    "Return + Maintenance + Damaged Quantity must be less than or equal to Delivered Quantity"
                 )
             if (not item.rental_delivery) or (not item.rental_delivery_detail):
                 frappe.throw(
                     "Rental Delivery and Rental Delivery Item are required for all items"
                 )
-            item.amount = (flt(item.return_qty) + flt(item.damaged_qty)) * flt(item.rate, 2)
+            item.amount = (
+                flt(item.return_qty) + flt(item.maintenance_qty) + flt(item.damaged_qty)
+            ) * flt(item.rate, 2)
 
     def sales_order_count(self):
         orders = list(set([row.sales_order for row in self.items]))
@@ -43,11 +53,28 @@ class RentalReturn(Document):
             frappe.throw("At least one Sales Order is required for this Rental Return")
         if len(orders) > 1:
             frappe.throw("Rental Return cannot have multiple Sales Orders")
+        if self.sales_order != orders[0]:
+            frappe.throw(
+                "Rental Return must be for the same Sales Order as the Rental Delivery"
+            )
 
     def calculate_totals(self):
+        for item in self.items:
+            item.amount = flt(item.return_qty) * flt(item.rate)
+            item.maintenance_amount = flt(item.maintenance_qty) * flt(
+                item.maintenance_rate
+            )
+            item.damaged_amount = flt(item.damaged_qty) * flt(item.damaged_rate)
         self.total_return_qty = sum(flt(item.return_qty) for item in self.items)
-        self.total_damaged_qty = sum(flt(item.damaged_qty) for item in self.items)
         self.total_amount = sum(flt(item.amount) for item in self.items)
+        self.total_maintenance_qty = sum(
+            flt(item.maintenance_qty) for item in self.items
+        )
+        self.total_maintenance_amount = sum(
+            flt(item.maintenance_amount) for item in self.items
+        )
+        self.total_damaged_qty = sum(flt(item.damaged_qty) for item in self.items)
+        self.total_damaged_amount = sum(flt(item.damaged_amount) for item in self.items)
         self.grand_total = flt(
             self.total_amount + self.total_security_deposit_returned, 2
         )
@@ -76,14 +103,14 @@ class RentalReturn(Document):
         stock_entry.posting_time = self.posting_time
         stock_entry.rental_return = self.name
         for item in self.items:
-            if item.return_qty > 0:
+            if item.return_qty > 0 or item.maintenance_qty > 0:
                 stock_entry.append(
                     "items",
                     {
                         "item_code": item.item_code,
                         "s_warehouse": self.source_warehouse,
                         "t_warehouse": self.target_warehouse,
-                        "qty": item.return_qty,
+                        "qty": item.return_qty + item.maintenance_qty,
                         "basic_rate": item.rate,
                     },
                 )
@@ -180,6 +207,11 @@ def create_rental_return(source_name, target_doc=None):
             target.return_qty = source.pending_qty
             target.damaged_qty = 0
             target.rate = source.rate
+            target.maintenance_rate, target.damaged_rate = frappe.db.get_value(
+                "Item",
+                source.item_code,
+                ["custom_maintenance_charge", "custom_damage_charge"],
+            ) or [0, 0]
             target.amount = flt(source.pending_qty * source.rate, 2)
             target.sales_order = source.sales_order
             target.sales_order_detail = source.sales_order_detail
@@ -190,6 +222,7 @@ def create_rental_return(source_name, target_doc=None):
 
     def update_target(source, target):
         validate(source, target)
+        target.sales_order = source.sales_order
         target.posting_date = today()
         target.posting_time = nowtime()
         target.return_date = today()
