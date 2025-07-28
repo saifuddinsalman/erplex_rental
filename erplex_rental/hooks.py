@@ -105,9 +105,13 @@ doctype_js = {
 # Hook on document methods and events
 
 doc_events = {
+    "Sales Invoice": {
+        "validate": "erplex_rental.main.sales_invoice_validate",
+        "on_submit": "erplex_rental.main.sales_invoice_on_submit",
+        "on_cancel": "erplex_rental.main.sales_invoice_on_cancel",
+    },
     "Sales Order": {
-        "validate": "erplex_rental.erplex_rental.doctype.rental_delivery.rental_delivery.validate_sales_order_rental",
-        "on_submit": "erplex_rental.erplex_rental.doctype.rental_delivery.rental_delivery.create_rental_delivery_from_sales_order",
+        "validate": "erplex_rental.main.sales_order_validate",
     },
     # "Item": {"validate": "erplex_rental.utils.validate_item_rental_fields"},
 }

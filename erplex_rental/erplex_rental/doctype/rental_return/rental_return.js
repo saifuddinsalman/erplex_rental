@@ -6,7 +6,7 @@ frappe.ui.form.on('Rental Return', {
                 filters: {
                     docstatus: 1,
                     order_type: "Rental",
-                    custom_all_rental_delivered: 0
+                    // custom_all_rental_delivered: 0
                 },
             };
         });

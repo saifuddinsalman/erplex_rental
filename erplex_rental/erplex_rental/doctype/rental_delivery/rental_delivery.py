@@ -5,6 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import today, nowtime, flt
 from erplex_rental.utils import remove_linked_transactions, get_total_returned_qty, get_total_delivered_qty
+from erplex_rental.main import update_so
 
 
 class RentalDelivery(Document):
@@ -90,25 +91,7 @@ class RentalDelivery(Document):
     def update_sales_order(self):
         orders = list(set([row.sales_order for row in self.items]))
         for order in orders:
-            so = frappe.get_doc("Sales Order", order)
-            so.status = "To Deliver"
-            for soi in so.items:
-                custom_rental_delivered_qty = get_total_delivered_qty(so.name, soi.name)
-                if custom_rental_delivered_qty > soi.qty:
-                    frappe.throw("Cannot Deliver more than Ordered Qty, Total Remaining Qty to Deliver is {}".format(soi.qty - soi.custom_rental_delivered_qty))
-                soi.custom_rental_delivered_qty = custom_rental_delivered_qty
-                custom_rental_returned_qty = get_total_returned_qty(so.name, soi.name)
-                if custom_rental_returned_qty > soi.qty:
-                    frappe.throw("Cannot Return more than Ordered Qty, Total Remaining Qty to Deliver is {}".format(soi.qty - soi.custom_rental_returned_qty))
-                soi.custom_rental_returned_qty = custom_rental_returned_qty 
-                soi.db_update()
-            so.custom_all_rental_delivered = all(soi.custom_rental_delivered_qty == soi.qty for soi in so.items)
-            if so.custom_all_rental_delivered:
-                so.status = "To Bill"
-                if sum(soi.custom_rental_returned_qty for soi in so.items) == so.total_qty:
-                    so.status = "Completed"
-            so.db_update()
-        frappe.db.commit()
+            update_so(order)
 
 @frappe.whitelist()
 def create_rental_delivery(source_name, target_doc=None):
@@ -164,21 +147,3 @@ def create_rental_delivery(source_name, target_doc=None):
     )
 
     return doclist
-
-
-def validate_sales_order_rental(doc, method):
-    """Validate sales order rental fields"""
-    if doc.order_type == "Rental":
-        pass
-        # if not doc.rental_start_date:
-        #     frappe.throw("Rental Start Date is required for rental orders")
-        # if not doc.rental_end_date:
-        #     frappe.throw("Rental End Date is required for rental orders")
-        # if doc.rental_start_date > doc.rental_end_date:
-        #     frappe.throw("Rental Start Date cannot be greater than Rental End Date")
-
-
-def create_rental_delivery_from_sales_order(doc, method):
-    """Auto create rental delivery button in sales order"""
-    # This function can be used to add custom logic when sales order is submitted
-    pass

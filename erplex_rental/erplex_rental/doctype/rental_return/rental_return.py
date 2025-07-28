@@ -83,7 +83,7 @@ class RentalReturn(Document):
         self.status = "Returned"
 
     def on_submit(self):
-        if self.total_return_qty > 0:
+        if self.total_return_qty > 0 or self.total_maintenance_qty > 0:
             self.create_return_stock_entry()
         if self.total_damaged_qty > 0:
             self.create_damaged_stock_entry()
