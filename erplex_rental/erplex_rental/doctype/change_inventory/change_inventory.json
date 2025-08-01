@@ -42,7 +42,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Naming Series",
-   "options": "CI-.YYYY.-",
+   "options": "MMF-.YYYY.-",
    "reqd": 1
   },
   {
@@ -215,7 +215,7 @@
    "link_fieldname": "change_inventory"
   }
  ],
- "modified": "2025-07-18 17:18:57.199660",
+ "modified": "2025-08-01 04:21:34.689706",
  "modified_by": "Administrator",
  "module": "ERPlex Rental",
  "name": "Change Inventory",

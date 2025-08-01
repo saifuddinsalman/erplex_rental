@@ -1,5 +1,6 @@
 {
  "actions": [],
+ "allow_copy": 1,
  "creation": "2024-01-01 10:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -32,11 +33,13 @@
    "description": "Automatically create rental warehouses if they don't exist",
    "fieldname": "auto_create_warehouses",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Auto Create Warehouses"
   },
   {
    "fieldname": "rental_settings",
    "fieldtype": "Section Break",
+   "hidden": 1,
    "label": "Rental Settings"
   },
   {
@@ -81,10 +84,11 @@
    "options": "Rental Settings Defaults"
   }
  ],
+ "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-07-12 06:48:09.824861",
+ "modified": "2025-08-01 04:39:11.675561",
  "modified_by": "Administrator",
  "module": "ERPlex Rental",
  "name": "Rental Settings",

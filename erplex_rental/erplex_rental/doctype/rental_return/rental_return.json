@@ -42,7 +42,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Naming Series",
-   "options": "RR-.YYYY.-",
+   "options": "HRN-.YYYY.-",
    "reqd": 1
   },
   {
@@ -220,7 +220,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-07-21 05:22:15.215279",
+ "modified": "2025-08-01 04:22:44.246132",
  "modified_by": "Administrator",
  "module": "ERPlex Rental",
  "name": "Rental Return",
