@@ -110,3 +110,49 @@ def sales_order_validate(self, method=None):
             frappe.throw("Please set Cost Center in Rental Settings")
         self.set_warehouse = data.source_warehouse
         self.cost_center = data.cost_center
+
+
+def set_purchase_rental_defaluts(self):
+    if self.custom_order_type == "Rental":
+        from erplex_rental.erplex_rental.doctype.rental_settings.rental_settings import get_defaults
+        data = get_defaults(self.company)
+        if not data.source_warehouse:
+            frappe.throw("Please set Source Warehouse in Rental Settings")
+        if not data.cost_center:
+            frappe.throw("Please set Cost Center in Rental Settings")
+        self.set_warehouse = data.source_warehouse
+        self.cost_center = data.cost_center
+
+def supplier_quotation_validate(self, method=None):
+    for row in self.items:
+        if row.request_for_quotation:
+            if self.custom_order_type != frappe.db.get_value("Request for Quotation", row.request_for_quotation, "custom_order_type"):
+                frappe.throw(f"All Requests for Quotations must be of the '{self.custom_order_type}' Order Type.")
+    if self.custom_order_type == "Rental":
+        from erplex_rental.erplex_rental.doctype.rental_settings.rental_settings import get_defaults
+        data = get_defaults(self.company)
+        if not data.cost_center:
+            frappe.throw("Please set Cost Center in Rental Settings")
+        self.cost_center = data.cost_center
+
+
+def purchase_order_validate(self, method=None):
+    for row in self.items:
+        if row.supplier_quotation:
+            if self.custom_order_type != frappe.db.get_value("Supplier Quotation", row.supplier_quotation, "custom_order_type"):
+                frappe.throw(f"All Supplier Quotations must be of the '{self.custom_order_type}' Order Type.")
+    set_purchase_rental_defaluts(self)
+
+def purchase_receipt_validate(self, method=None):
+    for row in self.items:
+        if row.purchase_order:
+            if self.custom_order_type != frappe.db.get_value("Purchase Order", row.purchase_order, "custom_order_type"):
+                frappe.throw(f"All Purchase Orders must be of the '{self.custom_order_type}' Order Type.")
+    set_purchase_rental_defaluts(self)
+
+def purchase_invoice_validate(self, method=None):
+    for row in self.items:
+        if row.purchase_order:
+            if self.custom_order_type != frappe.db.get_value("Purchase Order", row.purchase_order, "custom_order_type"):
+                frappe.throw(f"All Purchase Orders must be of the '{self.custom_order_type}' Order Type.")
+    set_purchase_rental_defaluts(self)

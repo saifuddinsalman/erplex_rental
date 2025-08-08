@@ -28,9 +28,12 @@ app_license = "mit"
 
 # include js in doctype views
 doctype_js = {
-    # "Item": "public/js/item.js",
     "Sales Order": "public/js/sales_order.js",
-    # "Sales Invoice": "public/js/sales_invoice.js",
+    "Request for Quotation": "public/js/purchase_common.js",
+    "Supplier Quotation": "public/js/purchase_common.js",
+    "Purchase Order": "public/js/purchase_common.js",
+    "Purchase Receipt": "public/js/purchase_common.js",
+    "Purchase Invoice": "public/js/purchase_common.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -57,10 +60,14 @@ doctype_js = {
 # ----------
 
 # add methods and filters to jinja environment
-# jinja = {
-# 	"methods": "erplex_rental.utils.jinja_methods",
-# 	"filters": "erplex_rental.utils.jinja_filters"
-# }
+jinja = {
+    "methods": [
+        "erplex_rental.utils.get_rental_inv_opening_date",
+        "erplex_rental.utils.get_rental_opening_qty",
+        "erplex_rental.utils.get_rental_order_per_day_rate",
+        "erplex_rental.utils.get_deliveries_and_returns",
+    ],
+}
 
 # Installation
 # ------------
@@ -113,7 +120,18 @@ doc_events = {
     "Sales Order": {
         "validate": "erplex_rental.main.sales_order_validate",
     },
-    # "Item": {"validate": "erplex_rental.utils.validate_item_rental_fields"},
+    "Supplier Quotation": {
+        "validate": "erplex_rental.main.supplier_quotation_validate",
+    },
+    "Purchase Order": {
+        "validate": "erplex_rental.main.purchase_order_validate",
+    },
+    "Purchase Receipt": {
+        "validate": "erplex_rental.main.purchase_receipt_validate",
+    },
+    "Purchase Invoice": {
+        "validate": "erplex_rental.main.purchase_invoice_validate",
+    },
 }
 
 # Scheduled Tasks

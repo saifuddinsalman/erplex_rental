@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2024-01-01 10:00:00",
  "doctype": "DocType",
@@ -215,7 +214,7 @@
    "link_fieldname": "change_inventory"
   }
  ],
- "modified": "2025-08-01 04:21:34.689706",
+ "modified": "2025-08-08 23:05:25.092355",
  "modified_by": "Administrator",
  "module": "ERPlex Rental",
  "name": "Change Inventory",

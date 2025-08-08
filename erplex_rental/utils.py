@@ -1,42 +1,6 @@
 import frappe
-from frappe.utils import today, add_days, getdate, flt, date_diff, add_to_date
+from frappe.utils import today, add_days, getdate, flt, date_diff, add_to_date, cstr, get_first_day
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice
-
-# @frappe.whitelist()
-# def get_item_rental_availability(item_code, start_date, end_date, exclude_rental_delivery=None):
-#     """Check item availability for rental period"""
-#     # Get total stock
-#     total_stock = frappe.db.get_value("Bin", {
-#         "item_code": item_code,
-#         "warehouse": ["not like", "%Rented%"]
-#     }, "sum(actual_qty)") or 0
-
-#     # Get currently rented quantity
-#     rented_qty = frappe.db.sql("""
-#         SELECT COALESCE(SUM(rdi.pending_qty), 0)
-#         FROM `tabRental Delivery` rd
-#         INNER JOIN `tabRental Delivery Item` rdi ON rd.name = rdi.parent
-#         WHERE rd.docstatus = 1
-#         AND rd.status NOT IN ('Returned', 'Cancelled')
-#         AND rdi.item_code = %s
-#         AND rdi.pending_qty > 0
-#         AND (
-#             (rdi.rental_start_date <= %s AND rdi.rental_end_date >= %s)
-#             OR (rdi.rental_start_date <= %s AND rdi.rental_end_date >= %s)
-#             OR (rdi.rental_start_date >= %s AND rdi.rental_end_date <= %s)
-#         )
-#         {}
-#     """.format(
-#         f"AND rd.name != '{exclude_rental_delivery}'" if exclude_rental_delivery else ""
-#     ), (item_code, start_date, start_date, end_date, end_date, start_date, end_date))[0][0]
-
-#     available_qty = total_stock - rented_qty
-
-#     return {
-#         "total_stock": total_stock,
-#         "rented_qty": rented_qty,
-#         "available_qty": max(0, available_qty)
-#     }
 
 
 @frappe.whitelist()
@@ -159,7 +123,7 @@ def create_ongoing_rental_invoices():
                         "qty": soi.custom_rental_delivered_qty,
                         "rate": (avg_daily_rate * days),
                         "sales_order": soi.parent,
-                        "sales_order_detail": soi.name,
+                        "so_detail": soi.name,
                     },
                 )
         if si_doc.items:
@@ -193,7 +157,7 @@ def create_unbilled_completed_rental_invoices(order=None):
                         "qty": rri.return_qty + rri.maintenance_qty + rri.damaged_qty,
                         "rate": avg_daily_rate * days,
                         "sales_order": rri.sales_order,
-                        "sales_order_detail": rri.sales_order_detail,
+                        "so_detail": rri.sales_order_detail,
                     },
                 )
         else:
@@ -210,7 +174,7 @@ def create_unbilled_completed_rental_invoices(order=None):
                             "qty": soi.custom_rental_delivered_qty,
                             "rate": avg_daily_rate * days,
                             "sales_order": soi.parent,
-                            "sales_order_detail": soi.name,
+                            "so_detail": soi.name,
                         },
                     )
         if si_doc.items:
@@ -224,6 +188,132 @@ def create_unbilled_completed_rental_invoices(order=None):
 def create_monthly_rental_invoice():
     create_ongoing_rental_invoices()
     create_unbilled_completed_rental_invoices()
+
+
+def get_ongoing_rental_orders_for_purchase_invoicing():
+    data = (
+        frappe.db.sql(
+            """Select so.name 
+    from `tabPurchase Order` so inner join `tabPurchase Order Item` soi on so.name = soi.parent
+    where so.cutom_order_type = 'Rental' and so.docstatus = 1 and soi.returned_qty < soi.qty
+    and so.per_received > 0 """,
+            as_dict=True,
+        )
+        or []
+    )
+    return list(set([row.name for row in data]))
+
+
+def get_unbilled_completed_rental_purchase_orders(order=None):
+    conds = ""
+    if order:
+        conds += f" and so.name = '{order}' "
+    data = (
+        frappe.db.sql(
+            f"""Select so.name from `tabPurchase Order` so inner join `tabPurchase Order Item` soi on so.name = soi.parent
+            where so.cutom_order_type = 'Rental' and so.docstatus = 1 and soi.returned_qty = soi.qty {conds}
+            (Select pi.posting_date from `tabPurchase Invoice` pi inner join `tabPurchase Invoice Item` pii on pi.name = pii.parent 
+            where pii.purchase_order = so.name and pi.docstatus = 1 Order by pi.posting_date desc limit 1) as last_billed_date""",
+            as_dict=True,
+        )
+        or []
+    )
+    return list(set([row.name for row in data]))
+
+
+def create_ongoing_rental_purchase_invoices():
+    for so_name in get_ongoing_rental_orders_for_purchase_invoicing():
+        so = frappe.get_doc("Sales Order", so_name)
+        si_doc = make_sales_invoice(so_name)
+        si_doc.update_stock = 0
+        si_doc.items = []
+        for soi in so.items:
+            avg_daily_rate = soi.rate / 30
+            days = 0
+            if soi.custom_rental_delivered_qty != soi.custom_rental_returned_qty:
+                days = date_diff(
+                    getdate(), so.custom_last_billed_date or so.transaction_date
+                )
+            elif soi.custom_rental_delivered_qty == soi.custom_rental_returned_qty:
+                return_date = frappe.db.get_value(
+                    "Rental Return", get_last_rental_return(so_name), "return_date"
+                )
+                days = date_diff(
+                    return_date, so.custom_last_billed_date or so.transaction_date
+                )
+            if days > 0:
+                si_doc.append(
+                    "items",
+                    {
+                        "item_code": soi.item_code,
+                        "qty": soi.custom_rental_delivered_qty,
+                        "rate": (avg_daily_rate * days),
+                        "sales_order": soi.parent,
+                        "so_detail": soi.name,
+                    },
+                )
+        if si_doc.items:
+            si_doc.flags.ignore_permissions = True
+            si_doc.run_method("set_missing_values")
+            si_doc.run_method("calculate_taxes_and_totals")
+            si_doc.save()
+        frappe.db.commit()
+
+
+def create_unbilled_completed_rental_purchase_invoices(order=None):
+    for so_name in get_unbilled_completed_rental_purchase_orders(order):
+        so = frappe.get_doc("Sales Order", so_name)
+        si_doc = make_sales_invoice(so_name)
+        si_doc.update_stock = 0
+        si_doc.items = []
+        if so.custom_last_billed_date:
+            rr = frappe.get_doc("Rental Return", get_last_rental_return(so_name))
+            for rri in rr.items:
+                soi_rate = frappe.db.get_value(
+                    "Sales Order Item", rri.sales_order_detail, "rate"
+                )
+                avg_daily_rate = soi_rate / 30
+                days = date_diff(
+                    rr.return_date, so.custom_last_billed_date or so.transaction_date
+                )
+                si_doc.append(
+                    "items",
+                    {
+                        "item_code": rri.item_code,
+                        "qty": rri.return_qty + rri.maintenance_qty + rri.damaged_qty,
+                        "rate": avg_daily_rate * days,
+                        "sales_order": rri.sales_order,
+                        "so_detail": rri.sales_order_detail,
+                    },
+                )
+        else:
+            for soi in so.items:
+                avg_daily_rate = soi.rate / 30
+                days = date_diff(
+                    getdate(), so.custom_last_billed_date or so.transaction_date
+                )
+                if days > 0:
+                    si_doc.append(
+                        "items",
+                        {
+                            "item_code": soi.item_code,
+                            "qty": soi.custom_rental_delivered_qty,
+                            "rate": avg_daily_rate * days,
+                            "sales_order": soi.parent,
+                            "so_detail": soi.name,
+                        },
+                    )
+        if si_doc.items:
+            si_doc.flags.ignore_permissions = True
+            si_doc.run_method("set_missing_values")
+            si_doc.run_method("calculate_taxes_and_totals")
+            si_doc.save()
+        frappe.db.commit()
+
+
+def create_monthly_rental_purchase_invoice():
+    create_ongoing_rental_purchase_invoices()
+    create_unbilled_completed_rental_purchase_invoices()
 
 
 def remove_linked_transactions(from_doc, ref_fieldname, ref_value):
@@ -280,9 +370,12 @@ def get_total_deposit_used(so, soi=None, rd=None, rdi=None):
         conds += f" and rri.rental_delivery = '{rd}' "
     if rdi:
         conds += f" and rri.rental_delivery_detail = '{rdi}' "
-    return frappe.db.sql(f"""Select (SUM(rri.maintenance_amount)+SUM(rri.damaged_amount)) as total_deposit_used 
+    return (
+        frappe.db.sql(f"""Select (SUM(rri.maintenance_amount)+SUM(rri.damaged_amount)) as total_deposit_used 
     from `tabRental Return` rr inner join `tabRental Return Item` rri on rr.name = rri.parent  
-    where rr.docstatus = 1 and rri.sales_order = '{so}' {conds} """)[0][0] or 0
+    where rr.docstatus = 1 and rri.sales_order = '{so}' {conds} """)[0][0]
+        or 0
+    )
 
 
 def get_last_billed_date(so_name):
@@ -300,3 +393,61 @@ def update_last_billed_date_in_so(so_name):
         "Sales Order", so_name, "custom_last_billed_date", get_last_billed_date(so_name)
     )
     frappe.db.commit()
+
+def get_rental_order_per_day_rate(so, so_detail, item):
+    rate = frappe.db.get_value("Sales Order Item", so_detail, "rate") or 0
+    if not rate:
+        rate = frappe.db.get_value("Sales Order Item", {"parent": so, "item_code": item}, "rate") or 0
+    return flt(rate/30, 2)
+
+
+def get_rental_opening_qty(so_name, item, date):
+    conds = ""
+    if date:
+        conds += f" and p.posting_date < '{date}' "
+    if item:
+        conds += f" and c.item_code = '{item}' "
+    if so_name:
+        conds += f" and c.sales_order = '{so_name}' "
+    delivered_qty = (
+        frappe.db.sql(f"""Select SUM(c.qty) as total_delivered_qty
+    from `tabRental Delivery` p inner join `tabRental Delivery Item` c on p.name = c.parent  
+    where p.docstatus = 1 {conds} """)[0][0]
+        or 0
+    )
+    returned_qty = (
+        frappe.db.sql(f"""Select (SUM(c.return_qty)+SUM(c.maintenance_qty)+SUM(c.damaged_qty)) as total_returned_qty 
+    from `tabRental Return` p inner join `tabRental Return Item` c on p.name = c.parent  
+    where p.docstatus = 1 {conds} """)[0][0]
+        or 0
+    )
+    return delivered_qty - returned_qty
+
+def get_deliveries_and_returns(so_name, item, from_date, to_date):
+    conds = ""
+    if from_date:
+        conds += f" and p.posting_date >= '{from_date}' "
+    if to_date:
+        conds += f" and p.posting_date <= '{to_date}' "
+    if item:
+        conds += f" and c.item_code = '{item}' "
+    if so_name:
+        conds += f" and c.sales_order = '{so_name}' "
+    deliveries = frappe.db.sql(f"""Select p.name, p.posting_date, c.qty
+    from `tabRental Delivery` p inner join `tabRental Delivery Item` c on p.name = c.parent  
+    where p.docstatus = 1 {conds} """, as_dict=True) or []
+    returns = frappe.db.sql(f"""Select p.name, p.posting_date, -1*(c.return_qty+c.maintenance_qty+c.damaged_qty) as qty 
+    from `tabRental Return` p inner join `tabRental Return Item` c on p.name = c.parent  
+    where p.docstatus = 1 {conds} """, as_dict=True) or []
+    data = deliveries + returns
+    return sorted(data, key=lambda x: x['posting_date'])
+
+def get_rental_inv_opening_date(so_name, date):
+    opening_date = date
+    if cstr(date).split("-")[-1] == "01":
+        opening_date = get_first_day(add_to_date(date, days=-2)) 
+    else:
+        opening_date = get_first_day(date)
+    # order_date = frappe.db.get_value("Sales Order", so_name, "transaction_date")
+    # return order_date if order_date > opening_date else opening_date
+    return opening_date
